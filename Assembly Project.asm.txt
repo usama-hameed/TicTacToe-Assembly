@@ -1,0 +1,411 @@
+.686 
+.MODEL flat, stdcall
+.STACK
+INCLUDE Irvine32.inc
+
+.data
+tic BYTE "TIC TAC TOE GAME"
+player BYTE "PLAYER 1 (X) : PLAYER 2 (O)"
+myarray1 BYTE '1' , ' ' , '|' , ' ' , '2' , ' ' , '|' ,' ' ,'3'
+myarray2 BYTE '4' , ' ' , '|' , ' ' , '5' , ' ' , '|' ,' ' ,'6'
+myarray3 BYTE '7',  ' ' , '|' , ' ' , '8' , ' ' , '|' ,' ' ,'9'
+choise BYTE 'X','O'
+p1 BYTE "Player 1 select your position ",0
+p2 BYTE "Player 2 select your position ",0
+result1 BYTE "GAME OVER",0
+result2 BYTE "DRAW",0
+info BYTE ?
+
+.code 
+main PROC
+mov ecx,5
+L13:
+push ecx
+call BOARD                                                        ;Procedure call to display numbers 
+call RESULT                                                       ;Procedure call to check win conditions
+call PLAYER1                                                      ;Procedure call to take input from player 1      
+call clrscr                             
+pop ecx
+push ecx
+call BOARD
+call RESULT
+call PLAYER2                                                      ;Procedure call to take input from player 2 
+call clrscr
+pop ecx         
+loop L13
+ cmp ecx,0                                                        ;Check for DRAW condition
+ je draw
+
+BOARD proc
+
+ 
+;TO DISPLAY TIC TAC TOE GAME
+mov ecx, LENGTHOF tic
+mov esi,Offset tic
+L0:
+mov al,[esi]
+call writechar
+inc esi
+loop l0
+call crlf
+call crlf
+
+;TO DISPLAY PLAYER INFO
+mov ecx,LENGTHOF player
+mov esi,OFFSET player
+l6:
+mov al,[esi]
+call writechar
+inc esi
+loop L6
+call crlf
+call crlf
+
+;LOOP TO DISPLAY FIRST ARRAY
+mov ecx,LENGTHOF myarray1
+mov esi,OFFSET myarray1
+L1:
+mov al,[esi]
+call writechar
+inc esi
+loop L1
+call crlf
+
+;LOOP TO DISPLAY SECOND ARRAY
+mov ecx,LENGTHOF myarray2
+mov esi,OFFSET myarray2
+L2:
+mov al,[esi]
+call writechar
+inc esi
+loop L2
+call crlf
+
+;LOOP TO DISPLAY THIRD ARRAY
+mov ecx,LENGTHOF myarray3
+mov esi,OFFSET myarray3
+L3:
+mov al,[esi]
+call writechar
+inc esi
+loop L3
+call crlf
+call crlf 
+
+ret
+BOARD endp
+
+RESULT proc
+
+mov dl,myarray1
+cmp dl,myarray1+4                                               ;if position 1 is equal to position 5
+je check_one                                                    
+                                                             
+mov dl,myarray1                                                  
+cmp dl,myarray2                                                 ;if position 1 is equal to positon 4
+je check_second
+
+mov dl,myarray1
+cmp dl,myarray2+4                                               ;if position 1 is equal to position 5
+je check_third
+
+mov dl,myarray1+4
+cmp dl,myarray2+4                                               ;if position 2 is equal to position 5
+je check_fourth
+
+mov dl,myarray1+8
+cmp dl,myarray2+8                                               ;if position 3 is equal to position 6
+je check_five
+
+mov dl,myarray1+8
+cmp dl,myarray2+4                                               ;if position 3 is equal to position 5
+je check_six
+
+mov dl,myarray2
+cmp dl,myarray2+4                                               ;if position 4 is equal to position 5
+je check_seven
+
+mov dl,myarray3
+cmp dl,myarray3+4                                               ;if position 7 is equal to position 8
+je check_eight
+
+
+check_one:
+cmp dl,myarray1+8                                      
+mov dl,myarray1+8
+je check_one_again
+check_one_again:
+cmp dl,myarray1+4                                              
+je stop
+ret
+
+check_second:
+cmp dl,myarray3                                                 
+mov dl,myarray3
+je check_second_again
+check_second_again:
+cmp dl,myarray2                                              
+je stop
+ret
+
+check_third:
+cmp dl,myarray3+8                                             
+mov dl,myarray3+8
+je check_third_again
+check_third_again:
+cmp dl,myarray2+4
+je stop
+ret
+
+check_fourth:
+cmp dl,myarray3+4
+mov dl,myarray3+4
+je check_fourth_again
+check_fourth_again:
+cmp dl,myarray2+4
+je stop
+ret
+
+check_five:
+cmp dl,myarray3+8
+mov dl,myarray3+8
+je check_five_again
+check_five_again:
+cmp dl,myarray2+8
+je stop
+ret
+
+check_six:
+cmp dl,myarray3
+mov dl,myarray3
+je check_six_again
+check_six_again:
+cmp dl,myarray2+4
+je stop
+ret
+
+check_seven:
+cmp dl,myarray2+8
+mov dl,myarray2+8
+je check_seven_again
+check_seven_again:
+cmp dl,myarray2+4
+je stop
+ret
+
+check_eight:
+cmp dl,myarray3+8
+mov dl,myarray3+8
+je check_eight_again
+check_eight_again:
+cmp dl,myarray3+4
+je stop
+ret
+
+stop:
+mov eax,white+(blue*16)
+call SetTextColor
+mov ecx,LENGTHOF result1
+mov esi,OFFSET result1
+L3:
+mov al,[esi]
+call writechar
+inc esi
+loop L3
+call crlf
+call crlf
+exit
+ret
+RESULT endp
+
+PLAYER1 proc
+L60:
+mov ecx,LENGTHOF p1
+mov esi,OFFSET p1
+L4:
+mov al,[esi]
+call writechar
+inc esi
+loop L4
+call crlf
+
+call readint                                                        ;To take input from Player 1
+mov info,al
+
+cmp al,1                                                            ;if Player 1 enter 1
+je one
+
+cmp al,2                                                            ;if Player 1 enter 2
+je two
+
+cmp al,3															;if Player 1 enter 3
+je three
+
+cmp al,4															;if Player 1 enter 4
+je four
+
+cmp al,5															;if Player 1 enter 5
+je five
+
+cmp al,6															;if Player 1 enter 6
+je six
+
+cmp al,7															;if Player 1 enter 7
+je seven
+
+cmp al,8															;if Player 1 enter 8
+je eight
+
+cmp al,9															;if Player 1 enter 9
+je nine
+
+one:
+mov al,choise
+xchg al,[myarray1]                                                  ;replace 1 by X
+ret
+
+two:
+mov al,choise
+xchg al,[myarray1+4]                                                ;replace 2 by X
+ret
+
+three:
+mov al,choise
+xchg al,[myarray1+8]                                                ;replace 3 by X
+ret
+
+four:
+mov al,choise
+xchg al,[myarray2]                                                  ;replace 4 by X
+ret
+
+five:
+mov al,choise
+xchg al,[myarray2+4]                                               ;replace 5 by X
+ret
+
+six:
+mov al,choise
+xchg al,[myarray2+8]                                                ;replace 6 by X
+ret
+
+seven:
+mov al,choise
+xchg al,[myarray3]                                                  ;replace 7 by X
+ret
+
+eight:
+mov al,choise
+xchg al,[myarray3+4]                                                ;replace 8 by X
+ret
+
+nine:
+mov al,choise
+xchg al,[myarray3+8]                                                ;replace 9 by X
+ret
+PLAYER1 endp
+
+PLAYER2 proc
+mov ecx,LENGTHOF p2
+mov esi,OFFSET p2
+L5:
+mov al,[esi]
+call writechar
+inc esi
+loop L5
+call crlf
+
+call readint                                                       ;To take input from player 2
+mov info,al
+
+cmp al,1														;If Player 2 enter 1
+je I
+
+cmp al,2                                                        ;If Player 2 enter 2
+je II
+
+cmp al,3														;If Player 2 enter 3
+je III
+
+cmp al,4													    ;If Player 2 enter 4
+je IV
+
+cmp al,5														;If Player 2 enter 5
+je V
+
+cmp al,6														;If Player 2 enter 6
+je VI
+
+cmp al,7														;If Player 2 enter 7
+je VII
+
+cmp al,8														;If Player 2 enter 8
+je VIII
+
+cmp al,9														;If Player 2 enter 9
+je IX
+
+
+I:
+mov al,[choise+1]
+xchg al,[myarray1]												;Replace 1 by O
+ret
+
+II:
+mov al,[choise+1]
+xchg al,[myarray1+4]											;Replace 2 by O
+ret
+
+III:
+mov al,[choise+1]
+xchg al,[myarray1+8]											;Replace 3 by O
+ret
+
+IV:
+mov al,[choise+1]
+xchg al,[myarray2]												;Replace 4 by O
+ret
+
+V:
+mov al,[choise+1]
+xchg al,[myarray2+4]											;Replace 5 by O
+ret
+
+VI:
+mov al,[choise+1]
+xchg al,[myarray2+8]											;Replace 6 by O
+ret
+
+VII:
+mov al,[choise+1]
+xchg al,[myarray3]												;Replace 7 by O
+ret
+
+VIII:
+mov al,[choise+1]
+xchg al,[myarray3+4]											;Replace 8 by O
+ret
+
+IX:
+mov al,[choise+1]
+xchg al,[myarray3+8]											;Replace 9 by O
+ret
+PLAYER2 endp
+
+
+draw:
+mov eax,white+(blue*16)
+call SetTextColor
+mov ecx,LENGTHOF result2
+mov esi,OFFSET result2
+L17:
+mov al,[esi]
+call writechar
+inc esi
+loop L17
+call crlf
+call crlf
+
+exit
+main endp
+end main
